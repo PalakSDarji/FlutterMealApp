@@ -35,10 +35,45 @@ class ProductsProvider with ChangeNotifier {
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
+    Product(
+      id: 'p5',
+      title: 'Mobile',
+      description: 'Samsung Mobile.',
+      price: 23.99,
+      imageUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+    ),
+    Product(
+      id: 'p6',
+      title: 'Router',
+      description: 'A router',
+      price: 62.54,
+      imageUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+    ),
   ];
 
+  /*var showFavoritesOnlyValue = false;
+
+  void showFavoritesOnly() {
+    showFavoritesOnlyValue = true;
+    notifyListeners();
+  }
+
+  void showAll() {
+    showFavoritesOnlyValue = false;
+    notifyListeners();
+  }
+*/
   List<Product> get items {
+    /*if (showFavoritesOnlyValue) {
+      return _items.where((product) => product.isFavorite).toList();
+    }*/
     return [..._items];
+  }
+
+  List<Product> get favoriteItems {
+    return _items.where((product) => product.isFavorite).toList();
   }
 
   Product findProductById(String id) {
