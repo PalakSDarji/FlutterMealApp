@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
+import 'package:flutter_meal_app/providers/orders_provider.dart';
 import 'package:flutter_meal_app/widgets/cart_item.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,7 @@ class CartScreen extends StatelessWidget {
                       Chip(
                         backgroundColor: Theme.of(context).primaryColor,
                         label: Text(
-                          '\$ ${cart.totalAmount.toString()}',
+                          '\$ ${cart.totalAmount.toStringAsFixed(2)}',
                           style: TextStyle(
                               color: Theme.of(context)
                                   .primaryTextTheme
@@ -39,7 +40,10 @@ class CartScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 5),
                       FlatButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Provider.of<OrdersProvider>(context, listen: false).addOrder(cart.items, cart.totalAmount);
+                          cart.clearCart();
+                        },
                         child: Text('ORDER NOW'),
                         textColor: Theme.of(context).primaryColor,
                       )

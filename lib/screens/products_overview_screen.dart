@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
 import 'package:flutter_meal_app/screens/cart_screen.dart';
+import 'package:flutter_meal_app/widgets/app_drawer.dart';
 import 'package:flutter_meal_app/widgets/badge.dart';
 import 'package:flutter_meal_app/widgets/products_grid.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         Provider.of<ProductsProvider>(context, listen: false);
 
     return Scaffold(
+      drawer: AppDrawer(),
       appBar: AppBar(
         title: Text('MyShop'),
         actions: [

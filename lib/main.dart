@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
+import 'package:flutter_meal_app/providers/orders_provider.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
 import 'package:flutter_meal_app/screens/cart_screen.dart';
+import 'package:flutter_meal_app/screens/orders_screen.dart';
 import 'package:flutter_meal_app/screens/product_detail_screen.dart';
 import 'package:flutter_meal_app/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +19,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ProductsProvider()),
-        ChangeNotifierProvider(create: (context) => Cart())
+        ChangeNotifierProvider(create: (context) => Cart()),
+        ChangeNotifierProvider(create: (context) => OrdersProvider())
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -31,6 +34,7 @@ class MyApp extends StatelessWidget {
         routes: {
           ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
           CartScreen.routeName: (ctx) => CartScreen(),
+          OrdersScreen.routeName: (ctx) => OrdersScreen(),
         },
       ),
     );
