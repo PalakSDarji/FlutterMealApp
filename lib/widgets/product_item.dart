@@ -35,6 +35,7 @@ class ProductItem extends StatelessWidget {
           footer: GridTileBar(
             leading: Consumer<Product>(
               builder: (context, value, _) => IconButton(
+                iconSize: 20,
                 icon: Icon(
                     value.isFavorite ? Icons.favorite : Icons.favorite_border),
                 onPressed: () {
@@ -45,9 +46,21 @@ class ProductItem extends StatelessWidget {
               ),
             ),
             trailing: IconButton(
+              iconSize: 20,
               icon: Icon(Icons.shopping_cart),
               onPressed: () {
                 cart.addItem(product.id, product.price, product.title);
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text('Item is added to cart.'),
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cart.undoAddItem(product.id);
+                    },
+                  ),
+                ));
               },
               color: Theme.of(context).accentColor,
             ),

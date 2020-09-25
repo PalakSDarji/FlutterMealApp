@@ -66,12 +66,38 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
+  void undoAddItem(String productId) {
+    int indexOfItemFoundInCart =
+        _items.indexWhere((cartItem) => cartItem.productId == productId);
+
+    print(indexOfItemFoundInCart);
+    if (indexOfItemFoundInCart < 0) {
+      //not found. exit.
+      return;
+    }
+
+    //found.
+    CartItem cartItem = _items[indexOfItemFoundInCart];
+    //Check for the count, if more than one, decrease one.
+    print(cartItem.quantity);
+    if (_items[indexOfItemFoundInCart].quantity == 1) {
+      //nope. only 1. remove whole cartitem then.
+      _items.removeAt(indexOfItemFoundInCart);
+    } else {
+      //yes, found more than one quantiy.
+      cartItem.quantity--;
+      _items[indexOfItemFoundInCart] = cartItem;
+    }
+
+    notifyListeners();
+  }
+
   void removeItem(String id) {
     _items.removeAt(getIndexOfCartItemById(id));
     notifyListeners();
   }
 
-  void clearCart(){
+  void clearCart() {
     _items.clear();
     notifyListeners();
   }
