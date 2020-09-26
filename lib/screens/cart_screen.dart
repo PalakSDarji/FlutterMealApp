@@ -16,6 +16,7 @@ class CartScreen extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Card(
                 margin: EdgeInsets.all(15),
@@ -41,7 +42,8 @@ class CartScreen extends StatelessWidget {
                       SizedBox(width: 5),
                       FlatButton(
                         onPressed: () {
-                          Provider.of<OrdersProvider>(context, listen: false).addOrder(cart.items, cart.totalAmount);
+                          Provider.of<OrdersProvider>(context, listen: false)
+                              .addOrder(cart.items, cart.totalAmount);
                           cart.clearCart();
                         },
                         child: Text('ORDER NOW'),
@@ -52,18 +54,23 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: cart.items.length,
-                  itemBuilder: (context, index) {
-                    var cartItem = cart.items[index];
-                    return CartItemWidget(
-                        id: cartItem.id,
-                        title: cartItem.title,
-                        price: cartItem.price,
-                        quantity: cartItem.quantity);
-                  }),
+              cart.items.length == 0
+                  ? Flexible(
+                      fit: FlexFit.loose,
+                      child:
+                          Center(child: Text('Cart is empty. Buy something.')))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: cart.items.length,
+                      itemBuilder: (context, index) {
+                        var cartItem = cart.items[index];
+                        return CartItemWidget(
+                            id: cartItem.id,
+                            title: cartItem.title,
+                            price: cartItem.price,
+                            quantity: cartItem.quantity);
+                      }),
               SizedBox(height: 10),
             ],
           ),

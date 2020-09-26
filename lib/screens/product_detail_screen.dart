@@ -12,7 +12,7 @@ class ProductDetailScreen extends StatelessWidget {
         .findProductById(productId);
     return Scaffold(
       appBar: AppBar(
-        title: Text(loadedProduct.id),
+        title: Text(loadedProduct.title),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -21,6 +21,11 @@ class ProductDetailScreen extends StatelessWidget {
               width: double.infinity,
               height: 300,
               child: Image.network(loadedProduct.imageUrl, fit: BoxFit.cover),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '${loadedProduct.id}',
+              style: TextStyle(color: Colors.grey, fontSize: 20),
             ),
             SizedBox(height: 10),
             Text(

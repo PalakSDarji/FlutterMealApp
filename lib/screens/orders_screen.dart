@@ -5,8 +5,8 @@ import 'package:flutter_meal_app/widgets/order_item.dart';
 import 'package:provider/provider.dart';
 
 class OrdersScreen extends StatelessWidget {
-
   static const routeName = "/orders";
+
   @override
   Widget build(BuildContext context) {
     final ordersProvider = Provider.of<OrdersProvider>(context);
@@ -16,11 +16,13 @@ class OrdersScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Your Orders'),
       ),
-      body: ListView.builder(
-        itemCount: ordersProvider.orders.length,
-        itemBuilder: (context, index) =>
-            OrderItemWidget(ordersProvider.orders[index]),
-      ),
+      body: ordersProvider.orders.length == 0
+          ? Center(child: Text('No orders yet!'))
+          : ListView.builder(
+              itemCount: ordersProvider.orders.length,
+              itemBuilder: (context, index) =>
+                  OrderItemWidget(ordersProvider.orders[index]),
+            ),
     );
   }
 }

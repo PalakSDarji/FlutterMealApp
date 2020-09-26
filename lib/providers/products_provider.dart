@@ -1,4 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -80,7 +83,25 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((product) => product.id == id);
   }
 
-  void addProduct() {
+  int indexOfProduct(Product product){
+    return _items.indexWhere((element) => element.id == product.id);
+  }
+
+  void addProduct(Product product) {
+    _items.add(product);
+    notifyListeners();
+  }
+
+  void editProduct(Product product){
+    int index = indexOfProduct(product);
+    if(index >= 0){
+      _items[index] = product;
+      notifyListeners();
+    }
+  }
+
+  void deleteProduct(Product product){
+    _items.removeAt(indexOfProduct(product));
     notifyListeners();
   }
 }

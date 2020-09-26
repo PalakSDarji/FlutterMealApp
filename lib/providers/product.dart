@@ -20,4 +20,9 @@ class Product with ChangeNotifier {
     isFavorite = !isFavorite;
     notifyListeners();
   }
+
+  @override
+  String toString() {
+    return 'Product{id: $id, title: $title, description: $description, price: $price, imageUrl: $imageUrl, isFavorite: $isFavorite}';
+  }
 }

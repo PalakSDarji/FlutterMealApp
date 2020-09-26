@@ -11,7 +11,8 @@ class UserProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productsProvider = Provider.of<ProductsProvider>(context);
-
+    print(
+        "productProvider in user_products_screen : ${productsProvider.items}");
     return Scaffold(
       drawer: AppDrawer(),
       appBar: AppBar(
@@ -27,12 +28,14 @@ class UserProductsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: productsProvider.items.length,
-          itemBuilder: (_, index) {
-            return UserProductItemWidget(productsProvider.items[index]);
-          },
-        ),
+        child: productsProvider.items.length == 0
+            ? Center(child: Text('No Products available. Please add one.'))
+            : ListView.builder(
+                itemCount: productsProvider.items.length,
+                itemBuilder: (_, index) {
+                  return UserProductItemWidget(productsProvider.items[index]);
+                },
+              ),
       ),
     );
   }
