@@ -20,7 +20,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productsProvider = Provider.of<ProductsProvider>(context);
+    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     Product product = ModalRoute.of(context).settings.arguments;
     if (product != null) {
       isEditMode = true;
