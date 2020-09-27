@@ -12,6 +12,7 @@ class AddEditProductScreen extends StatefulWidget {
 
 class _AddEditProductScreenState extends State<AddEditProductScreen> {
   var isEditMode = false;
+  var isImageCleared = false;
   final _priceFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -24,7 +25,12 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     if (product != null) {
       isEditMode = true;
       _formProduct = ProductFormModel.copyFromProduct(product);
-      _imageUrlController.text = product.imageUrl;
+      if(isImageCleared){
+        _imageUrlController.text = '';
+      }
+      else if(_imageUrlController.text.isEmpty){
+        _imageUrlController.text = _formProduct.imageUrl;
+      }
     } else {
       _formProduct = ProductFormModel.init();
     }
@@ -34,11 +40,12 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
         title: Text('Edit Product'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
+              SizedBox(height: 10),
               TextFormField(
                 initialValue: _formProduct.title,
                 decoration: InputDecoration(labelText: 'Title'),
@@ -127,7 +134,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                         if (value.isEmpty) {
                           return 'Please enter an image URL';
                         }
-                        if (!value.startsWith('htttp') &&
+                        if (!value.startsWith('http') &&
                             !value.startsWith('https')) {
                           return 'Please enter a valid URL.';
                         }
@@ -141,22 +148,27 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                       controller: _imageUrlController,
                       onEditingComplete: () {
                         FocusScope.of(context).unfocus();
-                        var text = _imageUrlController.text;
-                        if (text.isEmpty ||
-                            (!text.startsWith('htttp') &&
-                                !text.startsWith('htttps')) ||
-                            (!text.endsWith('.png') &&
-                                !text.endsWith('.jpeg') &&
-                                !text.endsWith('.jpg'))) {
-                          return;
-                        }
-
-                        setState(() {});
+                        setState(() {
+                          print("img : " + _imageUrlController.text);
+                          isImageCleared = false;
+                        });
+//                        loadImageFromURL();
                       },
                       onSaved: (newValue) {
+                        print('saved  $newValue');
                         _formProduct.imageUrl = newValue;
                       },
                     ),
+                  ),
+                  IconButton(
+                    alignment: Alignment.bottomCenter,
+                    icon: Icon(Icons.clear_rounded),
+                    onPressed: () {
+                      setState(() {
+                        isImageCleared = true;
+                      });
+                      //loadImageFromURL();
+                    },
                   )
                 ],
               )
@@ -199,6 +211,19 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     super.dispose();
     _priceFocusNode.dispose();
     _imageUrlController.dispose();
+  }
+
+  void loadImageFromURL() {
+    var text = _imageUrlController.text;
+
+    if (!text.startsWith('http') && !text.startsWith('https') ||
+        (!text.endsWith('.png') &&
+            !text.endsWith('.jpeg') &&
+            !text.endsWith('.jpg'))) {
+      return;
+    }
+    print("crossed : " + text.toString());
+    setState(() {});
   }
 }
 
