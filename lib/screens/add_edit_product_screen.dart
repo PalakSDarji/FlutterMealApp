@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class AddEditProductScreen extends StatefulWidget {
@@ -20,21 +24,22 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
+    final productsProvider =
+        Provider.of<ProductsProvider>(context, listen: false);
     Product product = ModalRoute.of(context).settings.arguments;
     if (product != null) {
       isEditMode = true;
       _formProduct = ProductFormModel.copyFromProduct(product);
-      if(isImageCleared){
+      if (isImageCleared) {
         _imageUrlController.text = '';
-      }
-      else if(_imageUrlController.text.isEmpty){
+      } else if (_imageUrlController.text.isEmpty) {
         _imageUrlController.text = _formProduct.imageUrl;
       }
     } else {
       _formProduct = ProductFormModel.init();
+      _imageUrlController.text = _formProduct.imageUrl;
     }
-
+    print("reebuilt");
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Product'),
@@ -138,11 +143,11 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                             !value.startsWith('https')) {
                           return 'Please enter a valid URL.';
                         }
-                        if (!value.endsWith('.png') &&
+                        /*if (!value.endsWith('.png') &&
                             !value.endsWith('.jpeg') &&
                             !value.endsWith('.jpg')) {
                           return 'Please enter a valid URL';
-                        }
+                        }*/
                         return null;
                       },
                       controller: _imageUrlController,
@@ -176,33 +181,8 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Material(
-        color: Theme.of(context).accentColor,
-        child: InkWell(
-          onTap: () {
-            final isValid = _formKey.currentState.validate();
-            if (!isValid) {
-              return;
-            }
-            _formKey.currentState.save();
-            if (isEditMode) {
-              productsProvider.editProduct(_formProduct.toProduct());
-            } else {
-              productsProvider.addProduct(_formProduct.toProduct());
-            }
-            Navigator.of(context).pop();
-          },
-          child: Container(
-            padding: EdgeInsets.all(10),
-            width: double.infinity,
-            child: Text(
-              'SUBMIT',
-              style: TextStyle(color: Colors.white, fontSize: 20),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: SubmitButtonWithProgressBar(
+          isEditMode: isEditMode, formKey: _formKey, formProduct: _formProduct),
     );
   }
 
@@ -216,14 +196,121 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   void loadImageFromURL() {
     var text = _imageUrlController.text;
 
-    if (!text.startsWith('http') && !text.startsWith('https') ||
+    if (!text.startsWith('http') &&
+            !text.startsWith(
+                'https') /*||
         (!text.endsWith('.png') &&
             !text.endsWith('.jpeg') &&
-            !text.endsWith('.jpg'))) {
+            !text.endsWith('.jpg'))*/
+        ) {
       return;
     }
     print("crossed : " + text.toString());
     setState(() {});
+  }
+}
+
+class SubmitButtonWithProgressBar extends StatefulWidget {
+  final isEditMode;
+  final formKey;
+  final ProductFormModel formProduct;
+
+  SubmitButtonWithProgressBar({
+    this.isEditMode,
+    this.formKey,
+    this.formProduct,
+  });
+
+  @override
+  _SubmitButtonWithProgressBarState createState() =>
+      _SubmitButtonWithProgressBarState();
+}
+
+class _SubmitButtonWithProgressBarState
+    extends State<SubmitButtonWithProgressBar> {
+  Future<Response> futureOfSubmit;
+  bool isLoadingVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final productsProvider =
+        Provider.of<ProductsProvider>(context, listen: false);
+    return Container(
+      height: 50,
+      child: Material(
+        color: Theme.of(context).accentColor,
+        child: InkWell(
+          onTap: isLoadingVisible
+              ? null
+              : () {
+                  final isValid = widget.formKey.currentState.validate();
+                  if (!isValid) {
+                    return;
+                  }
+                  widget.formKey.currentState.save();
+                  FocusScope.of(context).unfocus();
+
+                  setState(() {
+                    if (widget.isEditMode) {
+                      futureOfSubmit =
+                          productsProvider.editProduct(widget.formProduct);
+                    } else {
+                      futureOfSubmit =
+                          productsProvider.addProduct(widget.formProduct);
+                    }
+                    isLoadingVisible = true;
+                  });
+                  futureOfSubmit.then((value) {
+                    Navigator.of(context).pop();
+                  }).catchError((error) {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: Text('An error occurred!'),
+                              content: Text('Something went wrong.'),
+                              actions: [
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Okay'))
+                              ],
+                            ));
+                  }).whenComplete(() {
+                    setState(() {
+                      isLoadingVisible = false;
+                    });
+                  });
+                },
+          child: FutureBuilder(
+            future: futureOfSubmit,
+            builder: (context, AsyncSnapshot<Response> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                      height: 30,
+                      width: 30,
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      )),
+                );
+              } else {
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  width: double.infinity,
+                  child: Text(
+                    'SUBMIT',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -238,10 +325,11 @@ class ProductFormModel {
 
   ProductFormModel.init() {
     id = UniqueKey().toString();
-    title = '';
-    description = '';
-    price = 0.0;
-    imageUrl = '';
+    title = 'Sample ${Random().nextInt(10000)}';
+    description = 'ansdbasidbia sb';
+    price = 50.0;
+    imageUrl =
+        'https://yt3.ggpht.com/a/AATXAJzwWs2J6XBL_2o0jMyIuEmufzw3wcnD_p-ABqzzF44=s200-c-k-c0xffffffff-no-rj-mo';
     isFav = false;
   }
 

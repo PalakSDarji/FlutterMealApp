@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/product.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
+import 'package:http/http.dart';
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
@@ -44,7 +48,7 @@ class ProductsProvider with ChangeNotifier {
       description: 'Samsung Mobile.',
       price: 23.99,
       imageUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
     Product(
       id: 'p6',
@@ -52,26 +56,11 @@ class ProductsProvider with ChangeNotifier {
       description: 'A router',
       price: 62.54,
       imageUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
   ];
 
-  /*var showFavoritesOnlyValue = false;
-
-  void showFavoritesOnly() {
-    showFavoritesOnlyValue = true;
-    notifyListeners();
-  }
-
-  void showAll() {
-    showFavoritesOnlyValue = false;
-    notifyListeners();
-  }
-*/
   List<Product> get items {
-    /*if (showFavoritesOnlyValue) {
-      return _items.where((product) => product.isFavorite).toList();
-    }*/
     return [..._items];
   }
 
@@ -83,24 +72,43 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((product) => product.id == id);
   }
 
-  int indexOfProduct(Product product){
+  int indexOfProduct(Product product) {
     return _items.indexWhere((element) => element.id == product.id);
   }
 
-  void addProduct(Product product) {
-    _items.add(product);
-    notifyListeners();
+  Future<Response> addProduct(ProductFormModel product) async {
+    const url = 'https://fluttershopapp-4dd44.firebaseio.com/products.json';
+
+    try {
+      Response response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFav
+          }));
+
+      Map respMap = json.decode(response.body);
+      product.id = respMap['name'];
+      _items.add(product.toProduct());
+      notifyListeners();
+      return response;
+    } on Exception catch (error) {
+      print("error is :: " + error.toString());
+      throw Exception('Something went wrong!!');
+    }
   }
 
-  void editProduct(Product product){
-    int index = indexOfProduct(product);
-    if(index >= 0){
-      _items[index] = product;
+  Future<Response> editProduct(ProductFormModel product) {
+    int index = indexOfProduct(product.toProduct());
+    if (index >= 0) {
+      _items[index] = product.toProduct();
       notifyListeners();
     }
   }
 
-  void deleteProduct(Product product){
+  void deleteProduct(Product product) {
     _items.removeAt(indexOfProduct(product));
     notifyListeners();
   }
