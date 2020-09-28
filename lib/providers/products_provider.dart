@@ -4,13 +4,14 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/product.dart';
+import 'package:flutter_meal_app/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
 import 'package:http/http.dart';
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
-    Product(
+    /*Product(
       id: 'p1',
       title: 'Red Shirt',
       description: 'A red shirt - it is pretty red!',
@@ -57,7 +58,7 @@ class ProductsProvider with ChangeNotifier {
       price: 62.54,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
+    ),*/
   ];
 
   List<Product> get items {
@@ -76,11 +77,36 @@ class ProductsProvider with ChangeNotifier {
     return _items.indexWhere((element) => element.id == product.id);
   }
 
-  Future<Response> addProduct(ProductFormModel product) async {
-    const url = 'https://fluttershopapp-4dd44.firebaseio.com/products.json';
-
+  Future<void> fetchAndSetProducts() async {
     try {
-      Response response = await http.post(url,
+      final response = await http.get(Constants.PRODUCTS_URL);
+      final extractedProducts =
+          json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+
+      if(extractedProducts != null && extractedProducts.isNotEmpty){
+        extractedProducts.forEach((prodId, prodData) {
+          loadedProducts.add(Product(
+              id: prodId,
+              title: prodData['title'],
+              description: prodData['description'],
+              price: prodData['price'],
+              imageUrl: prodData['imageUrl'],
+              isFavorite: prodData['isFavorite']));
+        });
+      }
+      print("got products");
+      print(loadedProducts);
+      _items = loadedProducts;
+      notifyListeners();
+    } on Exception catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<Response> addProduct(ProductFormModel product) async {
+    try {
+      Response response = await http.post(Constants.PRODUCTS_URL,
           body: json.encode({
             'title': product.title,
             'description': product.description,

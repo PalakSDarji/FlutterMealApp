@@ -16,6 +16,26 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
+  var _isDataLoading = false;
+  var _isInit = false;
+
+  @override
+  void didChangeDependencies() {
+    if (!_isInit) {
+      setState(() {
+        _isDataLoading = true;
+      });
+      Provider.of<ProductsProvider>(context, listen: false)
+          .fetchAndSetProducts()
+          .then((value) {
+        setState(() {
+          _isDataLoading = false;
+        });
+      });
+      _isInit = true;
+    }
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,47 +43,55 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         Provider.of<ProductsProvider>(context, listen: false);
 
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: AppBar(
-        title: Text('MyShop'),
-        actions: [
-          Consumer<Cart>(
-            builder: (_, cart, ch) => Badge(
-              child: ch,
-              value: cart.itemCount.toString(),
+        drawer: AppDrawer(),
+        appBar: AppBar(
+          title: Text('MyShop'),
+          actions: [
+            Consumer<Cart>(
+              builder: (_, cart, ch) => Badge(
+                child: ch,
+                value: cart.itemCount.toString(),
+              ),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(CartScreen.routeName);
+                },
+                icon: Icon(Icons.shopping_cart),
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(CartScreen.routeName);
+            PopupMenuButton(
+              onSelected: (FilterOptions selectedValue) {
+                setState(() {
+                  if (selectedValue == FilterOptions.Favorites) {
+                    _showOnlyFavorites = true;
+                  } else {
+                    _showOnlyFavorites = false;
+                  }
+                });
               },
-              icon: Icon(Icons.shopping_cart),
+              icon: Icon(Icons.more_vert),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  child: Text("Only Favorites"),
+                  value: FilterOptions.Favorites,
+                ),
+                PopupMenuItem(
+                  child: Text("Show All"),
+                  value: FilterOptions.All,
+                ),
+              ],
             ),
-          ),
-          PopupMenuButton(
-            onSelected: (FilterOptions selectedValue) {
-              setState(() {
-                if (selectedValue == FilterOptions.Favorites) {
-                  _showOnlyFavorites = true;
-                } else {
-                  _showOnlyFavorites = false;
-                }
-              });
-            },
-            icon: Icon(Icons.more_vert),
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                child: Text("Only Favorites"),
-                value: FilterOptions.Favorites,
+          ],
+        ),
+        body: Column(
+          children: [
+            if (_isDataLoading)
+              LinearProgressIndicator(
+                minHeight: 4,
+                backgroundColor: Colors.white,
               ),
-              PopupMenuItem(
-                child: Text("Show All"),
-                value: FilterOptions.All,
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: ProductsGrid(_showOnlyFavorites),
-    );
+            Expanded(child: Container(child: ProductsGrid(_showOnlyFavorites))),
+          ],
+        ));
   }
 }
