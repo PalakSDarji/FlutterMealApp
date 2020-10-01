@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 class UserProductsScreen extends StatelessWidget {
   static const routeName = '/user-products';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   Future<void> _refreshProducts(BuildContext context) async {
     await Provider.of<ProductsProvider>(context, listen: false)
@@ -20,6 +21,7 @@ class UserProductsScreen extends StatelessWidget {
     print(
         "productProvider in user_products_screen : ${productsProvider.items}");
     return Scaffold(
+      key: _scaffoldKey,
       drawer: AppDrawer(),
       appBar: AppBar(
         title: const Text('Your Products'),
@@ -41,7 +43,7 @@ class UserProductsScreen extends StatelessWidget {
               : ListView.builder(
                   itemCount: productsProvider.items.length,
                   itemBuilder: (_, index) {
-                    return UserProductItemWidget(productsProvider.items[index]);
+                    return UserProductItemWidget(productsProvider.items[index], _scaffoldKey);
                   },
                 ),
         ),

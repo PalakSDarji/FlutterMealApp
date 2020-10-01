@@ -233,6 +233,7 @@ class _SubmitButtonWithProgressBarState
 
   @override
   Widget build(BuildContext context) {
+    print("isEditMode : ${widget.isEditMode}");
     final productsProvider =
         Provider.of<ProductsProvider>(context, listen: false);
     return Container(
@@ -267,7 +268,7 @@ class _SubmitButtonWithProgressBarState
                         context: context,
                         builder: (context) => AlertDialog(
                               title: Text('An error occurred!'),
-                              content: Text('Something went wrong.'),
+                              content: Text(error.toString()),
                               actions: [
                                 FlatButton(
                                     onPressed: () {

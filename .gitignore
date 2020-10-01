@@ -43,3 +43,4 @@ app.*.map.json
 /.dart_tool/
 /.idea/
 /ios/
+*.g.dart

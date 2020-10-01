@@ -7,12 +7,14 @@ import 'package:provider/provider.dart';
 
 class UserProductItemWidget extends StatelessWidget {
   final Product product;
+  final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  UserProductItemWidget(this.product);
+  UserProductItemWidget(this.product, this._scaffoldKey);
 
   @override
   Widget build(BuildContext context) {
-    final productsProvider = Provider.of<ProductsProvider>(context);
+    final productsProvider =
+        Provider.of<ProductsProvider>(context, listen: false);
 
     return Column(
       children: [
@@ -41,7 +43,21 @@ class UserProductItemWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
-                    productsProvider.deleteProduct(product);
+                    productsProvider.deleteProduct(product).catchError((error) {
+                      showDialog(
+                          context: _scaffoldKey.currentContext,
+                          builder: (context) => AlertDialog(
+                                title: Text('An error occurred!'),
+                                content: Text(error.toString()),
+                                actions: [
+                                  FlatButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Okay'))
+                                ],
+                              ));
+                    });
                   },
                   color: Theme.of(context).errorColor,
                 ),

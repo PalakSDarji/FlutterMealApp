@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/utils/constants.dart';
+import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
 import 'package:http/http.dart';
@@ -84,7 +85,7 @@ class ProductsProvider with ChangeNotifier {
           json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
 
-      if(extractedProducts != null && extractedProducts.isNotEmpty){
+      if (extractedProducts != null && extractedProducts.isNotEmpty) {
         extractedProducts.forEach((prodId, prodData) {
           loadedProducts.add(Product(
               id: prodId,
@@ -122,20 +123,52 @@ class ProductsProvider with ChangeNotifier {
       return response;
     } on Exception catch (error) {
       print("error is :: " + error.toString());
-      throw Exception('Something went wrong!!');
+      throw HttpException('Something went wrong!!');
     }
   }
 
-  Future<Response> editProduct(ProductFormModel product) {
-    int index = indexOfProduct(product.toProduct());
+  Future<Response> editProduct(ProductFormModel productFormModel) async {
+    Product product = productFormModel.toProduct();
+    int index = indexOfProduct(product);
+
     if (index >= 0) {
-      _items[index] = product.toProduct();
-      notifyListeners();
+      try {
+        final url =
+            Constants.PRODUCTS_EDIT_URL.replaceFirst('{id}', product.id);
+        print("url : $url");
+        Response response =
+            await http.patch(url, body: json.encode(product.toJson()));
+        print("respo : " + response.statusCode.toString());
+        if (response.statusCode >= 400) {
+          throw HttpException('Wrong EndPoint');
+        }
+        _items[index] = product;
+        notifyListeners();
+        return response;
+      } on Exception catch (error) {
+        //This is another way of catching and throwing the exception to outer codeblock.
+        // in the case if we want to do something in catch block.
+        print("error in updating product : " + error.toString());
+        throw HttpException('Something went wrong updating the product!');
+      }
     }
   }
 
-  void deleteProduct(Product product) {
-    _items.removeAt(indexOfProduct(product));
+  Future<Response> deleteProduct(Product product) async {
+    final url = Constants.PRODUCTS_EDIT_URL.replaceFirst('{id}', product.id);
+    final existingIndex = indexOfProduct(product);
+    var existingProduct = _items[existingIndex];
+
+    _items.removeAt(existingIndex);
     notifyListeners();
+
+    Response response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      _items.insert(existingIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete product!');
+    }
+    existingProduct = null;
+    return response;
   }
 }
