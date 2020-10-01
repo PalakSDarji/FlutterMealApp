@@ -39,7 +39,12 @@ class ProductItem extends StatelessWidget {
                 icon: Icon(
                     value.isFavorite ? Icons.favorite : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleFavorite();
+                  product.toggleFavorite().catchError((error) {
+                    print(error);
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(error.toString()),
+                    ));
+                  });
                   onFavChange();
                 },
                 color: Theme.of(context).accentColor,

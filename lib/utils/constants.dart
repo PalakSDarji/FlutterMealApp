@@ -3,5 +3,6 @@ class Constants {
 
   static const PRODUCTS_URL = '$BASE_URL/products.json';
 
-  static const PRODUCTS_EDIT_URL = '$BASE_URL/products/{id}.json';
+  static const PRODUCTS_EDIT_URL = '$BASE_URL/products/{id}.'
+      '';
 }

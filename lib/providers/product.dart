@@ -1,5 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_meal_app/utils/constants.dart';
+import 'package:http/http.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:http/http.dart' as http;
 
 part 'product.g.dart';
 
@@ -20,9 +26,23 @@ class Product with ChangeNotifier {
       @required this.imageUrl,
       this.isFavorite = false});
 
-  void toggleFavorite() {
+  Future<void> toggleFavorite() async {
+    final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
+
+    final url = Constants.PRODUCTS_EDIT_URL.replaceFirst('{id}', id);
+    try{
+      Response response = await http.patch(url, body: json.encode(toJson()));
+      if(response.statusCode >= 400){
+        throw HttpException('Try again!');
+      }
+    }
+    on Exception catch(error){
+      isFavorite = oldStatus;
+      notifyListeners();
+      throw 'WWRONG';
+    }
   }
 
   @override
