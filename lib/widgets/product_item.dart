@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/providers/auth_provider.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/screens/product_detail_screen.dart';
@@ -13,6 +14,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final authToken = Provider.of<AuthProvider>(context, listen: false).token;
 
     print("prouctid : ${product.id} , ${product.isFavorite}");
     return Card(
@@ -39,7 +41,7 @@ class ProductItem extends StatelessWidget {
                 icon: Icon(
                     value.isFavorite ? Icons.favorite : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleFavorite().catchError((error) {
+                  product.toggleFavorite(authToken).catchError((error) {
                     print(error);
                     Scaffold.of(context).showSnackBar(SnackBar(
                       content: Text(error.toString()),

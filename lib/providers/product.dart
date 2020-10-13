@@ -26,19 +26,20 @@ class Product with ChangeNotifier {
       @required this.imageUrl,
       this.isFavorite = false});
 
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(String authToken) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
 
-    final url = Constants.PRODUCTS_EDIT_URL.replaceFirst('{id}', id);
-    try{
+    final url = Constants.PRODUCTS_EDIT_URL
+        .replaceFirst('{id}', id)
+        .replaceFirst('{authToken}', authToken);
+    try {
       Response response = await http.patch(url, body: json.encode(toJson()));
-      if(response.statusCode >= 400){
+      if (response.statusCode >= 400) {
         throw HttpException('Try again!');
       }
-    }
-    on Exception catch(error){
+    } on Exception catch (error) {
       isFavorite = oldStatus;
       notifyListeners();
       throw 'WWRONG';
