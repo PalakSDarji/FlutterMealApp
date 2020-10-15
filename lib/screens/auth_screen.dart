@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/providers/auth_provider.dart';
-import 'package:flutter_meal_app/screens/products_overview_screen.dart';
 import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:provider/provider.dart';
 
@@ -102,7 +101,7 @@ class _AuthCardState extends State<AuthCard> {
     'password': '',
   };
   var _isLoading = false;
-  final _passwordController = TextEditingController();
+  final _passwordController = TextEditingController(text: '123456');
 
   void _showErrorDialog(String msg) {
     showDialog(
@@ -198,13 +197,13 @@ class _AuthCardState extends State<AuthCard> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  initialValue: 'palaksdarji@gmail.com',
                   decoration: InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value.isEmpty || !value.contains('@')) {
                       return 'Invalid email!';
                     }
-                    return null;
                     return null;
                   },
                   onSaved: (value) {

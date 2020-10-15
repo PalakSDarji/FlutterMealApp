@@ -1,21 +1,25 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/api/rest_service.dart';
+import 'package:flutter_meal_app/di/injection.dart';
 import 'package:flutter_meal_app/providers/product.dart';
+import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
 import 'package:flutter_meal_app/utils/constants.dart';
 import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
-import 'package:http/http.dart';
 
 class ProductsProvider with ChangeNotifier {
+
   List<Product> _items = [];
 
   var authToken;
+  RestService restService;
 
-  ProductsProvider();
+  ProductsProvider(){
+    restService = locator<RestService>();
+  }
 
   List<Product> get items {
     return [..._items];
@@ -35,12 +39,11 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     try {
-      var url = Constants.PRODUCTS_URL.replaceFirst('{authToken}', authToken);
-      print("fetchAndSetProducts url : $url");
-      final response = await http.get(url);
 
-      final extractedProducts =
-          json.decode(response.body) as Map<String, dynamic>;
+      var response = await restService.getProducts(authToken);
+      print("getProducts list : ${response.body}");
+
+      final extractedProducts = response.body as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
 
       if (extractedProducts != null && extractedProducts.isNotEmpty) {
@@ -63,11 +66,11 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<Response> addProduct(ProductFormModel product) async {
+  Future<http.Response> addProduct(ProductFormModel product) async {
     try {
       var url = Constants.PRODUCTS_URL.replaceFirst('{authToken}', authToken);
       print("fetchAndSetProducts url : $url");
-      Response response = await http.post(url,
+      http.Response response = await http.post(url,
           body: json.encode({
             'title': product.title,
             'description': product.description,
@@ -87,8 +90,8 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<Response> editProduct(ProductFormModel productFormModel) async {
-    Product product = productFormModel.toProduct();
+  Future<http.Response> editProduct(Product product) async {
+
     int index = indexOfProduct(product);
 
     if (index >= 0) {
@@ -97,7 +100,7 @@ class ProductsProvider with ChangeNotifier {
             .replaceFirst('{id}', product.id)
             .replaceFirst('{authToken}', authToken);
         print("url : $url");
-        Response response =
+        http.Response response =
             await http.patch(url, body: json.encode(product.toJson()));
         print("respo : " + response.statusCode.toString());
         if (response.statusCode >= 400) {
@@ -115,7 +118,7 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<Response> deleteProduct(Product product) async {
+  Future<http.Response> deleteProduct(Product product) async {
     final url = Constants.PRODUCTS_EDIT_URL
         .replaceFirst('{id}', product.id)
         .replaceFirst('{authToken}', authToken);
@@ -125,7 +128,7 @@ class ProductsProvider with ChangeNotifier {
     _items.removeAt(existingIndex);
     notifyListeners();
 
-    Response response = await http.delete(url);
+    http.Response response = await http.delete(url);
     if (response.statusCode >= 400) {
       _items.insert(existingIndex, existingProduct);
       notifyListeners();

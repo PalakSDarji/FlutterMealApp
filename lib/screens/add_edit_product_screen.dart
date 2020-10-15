@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
 import 'package:http/http.dart';
@@ -254,7 +253,7 @@ class _SubmitButtonWithProgressBarState
                   setState(() {
                     if (widget.isEditMode) {
                       futureOfSubmit =
-                          productsProvider.editProduct(widget.formProduct);
+                          productsProvider.editProduct(widget.formProduct.toProduct());
                     } else {
                       futureOfSubmit =
                           productsProvider.addProduct(widget.formProduct);

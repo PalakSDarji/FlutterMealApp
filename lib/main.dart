@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/di/injection.dart';
 import 'package:flutter_meal_app/providers/auth_provider.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
 import 'package:flutter_meal_app/providers/orders_provider.dart';
@@ -12,7 +13,9 @@ import 'package:flutter_meal_app/screens/products_overview_screen.dart';
 import 'package:flutter_meal_app/screens/user_products_screen.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureInjection(Env.dev);
   runApp(MyApp());
 }
 

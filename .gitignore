@@ -44,3 +44,5 @@ app.*.map.json
 /.idea/
 /ios/
 *.g.dart
+/lib/api/rest_service.chopper.dart
+/lib/di/injection.config.dart
