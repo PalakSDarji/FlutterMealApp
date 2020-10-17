@@ -1,10 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_meal_app/di/injection.dart';
+import 'package:flutter_meal_app/models/user.dart';
+import 'package:flutter_meal_app/utils/constants.dart';
 import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:http/http.dart' as http;
+import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+@singleton
 class AuthProvider with ChangeNotifier {
+
+  User _user;
   String _token;
   DateTime _expiryDate;
   String _userId;
@@ -77,5 +85,14 @@ class AuthProvider with ChangeNotifier {
     } catch (error) {
       throw error;
     }
+  }
+
+  void saveUserInPref(){
+    //Convert user object into String to save it to pref.
+    locator<SharedPreferences>().setString(Constants.USER_KEY, json.encode(_user.toJson()));
+  }
+
+  void removeUserFromPref(){
+    locator<SharedPreferences>().remove(Constants.USER_KEY);
   }
 }

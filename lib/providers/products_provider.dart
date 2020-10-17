@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meal_app/api/rest_service.dart';
-import 'package:flutter_meal_app/di/injection.dart';
 import 'package:flutter_meal_app/providers/product.dart';
+import 'package:flutter_meal_app/repositories/products_repository.dart';
 import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
 import 'package:flutter_meal_app/utils/constants.dart';
 import 'package:flutter_meal_app/utils/http_exception.dart';
@@ -15,11 +14,10 @@ class ProductsProvider with ChangeNotifier {
   List<Product> _items = [];
 
   var authToken;
-  RestService restService;
 
-  ProductsProvider(){
-    restService = locator<RestService>();
-  }
+  ProductsRepository productsRepository;
+
+  ProductsProvider(this.productsRepository);
 
   List<Product> get items {
     return [..._items];
@@ -39,28 +37,32 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     try {
+      var baseModel = await productsRepository.fetchProducts();
+      print("getProducts list : $baseModel");
 
-      var response = await restService.getProducts(authToken);
-      print("getProducts list : ${response.body}");
+      if (baseModel.data != null) {
+        final extractedProducts = baseModel.data as Map<String, dynamic>;
+        final List<Product> loadedProducts = [];
 
-      final extractedProducts = response.body as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
+        if (extractedProducts != null && extractedProducts.isNotEmpty) {
+          extractedProducts.forEach((prodId, prodData) {
+            loadedProducts.add(Product(
+                id: prodId,
+                title: prodData['title'],
+                description: prodData['description'],
+                price: prodData['price'],
+                imageUrl: prodData['imageUrl'],
+                isFavorite: prodData['isFavorite']));
+          });
+        }
 
-      if (extractedProducts != null && extractedProducts.isNotEmpty) {
-        extractedProducts.forEach((prodId, prodData) {
-          loadedProducts.add(Product(
-              id: prodId,
-              title: prodData['title'],
-              description: prodData['description'],
-              price: prodData['price'],
-              imageUrl: prodData['imageUrl'],
-              isFavorite: prodData['isFavorite']));
-        });
+        print("got products");
+        print(loadedProducts);
+        _items = loadedProducts;
+        notifyListeners();
+      } else {
+        throw Exception(baseModel.error);
       }
-      print("got products");
-      print(loadedProducts);
-      _items = loadedProducts;
-      notifyListeners();
     } on Exception catch (error) {
       throw Exception(error);
     }
@@ -91,7 +93,6 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<http.Response> editProduct(Product product) async {
-
     int index = indexOfProduct(product);
 
     if (index >= 0) {

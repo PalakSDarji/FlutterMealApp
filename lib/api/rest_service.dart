@@ -4,8 +4,9 @@ import 'package:injectable/injectable.dart';
 
 part 'rest_service.chopper.dart';
 
-@singleton
-@ChopperApi(baseUrl: Constants.BASE_URL)
+@prod
+@injectable
+@ChopperApi()
 abstract class RestService extends ChopperService {
 
   @Get(path: "/products.json?auth={authToken}")
@@ -25,10 +26,14 @@ abstract class RestService extends ChopperService {
 
   @factoryMethod
   static RestService create() {
+    print('rest service create called');
     final client = ChopperClient(
         baseUrl: Constants.BASE_URL,
         services: [
           _$RestService(),
+        ],
+        interceptors: [
+          HttpLoggingInterceptor()
         ],
         converter: JsonConverter());
 

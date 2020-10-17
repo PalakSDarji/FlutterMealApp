@@ -7,6 +7,7 @@ abstract class DependencyModule{
   /*@singleton
   RestService get restService;*/
 
+  @singleton
   @preResolve
   Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
 

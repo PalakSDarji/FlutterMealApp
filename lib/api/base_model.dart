@@ -1,21 +1,11 @@
-
 class BaseModel<T> {
-  ServerError _error;
+  ServerError error;
   T data;
-
-  setException(ServerError error) {
-    _error = error;
-  }
-
-  setData(T data) {
-    this.data = data;
-  }
-
-  get getException {
-    return _error;
-  }
 }
 
-class ServerError{
+class ServerError {
+  String msg;
+  int statusCode;
 
+  ServerError(int statusCode, String s);
 }
