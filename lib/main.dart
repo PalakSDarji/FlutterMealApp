@@ -12,12 +12,13 @@ import 'package:flutter_meal_app/screens/orders_screen.dart';
 import 'package:flutter_meal_app/screens/product_detail_screen.dart';
 import 'package:flutter_meal_app/screens/products_overview_screen.dart';
 import 'package:flutter_meal_app/screens/user_products_screen.dart';
+import 'package:injectable/injectable.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureInjection(Env.prod);
+  await configureInjection(Environment.prod);
   _setupLogging();
   runApp(MyApp());
 }

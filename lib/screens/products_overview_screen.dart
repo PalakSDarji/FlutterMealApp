@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
 import 'package:flutter_meal_app/screens/cart_screen.dart';
@@ -20,6 +21,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
   var _isDataLoading = false;
   var _isInit = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void didChangeDependencies() {
@@ -29,7 +31,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       });
       Provider.of<ProductsProvider>(context, listen: false)
           .fetchAndSetProducts()
-          .then((value) {
+          .catchError((error) {
+        print(error);
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text(
+                '${NetworkExceptions.getErrorMessage(error).toString()}')));
+        //Show some kind of error reporting to User in UI way.
+      }).whenComplete(() {
         setState(() {
           _isDataLoading = false;
         });
@@ -42,6 +50,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         drawer: AppDrawer(),
         appBar: AppBar(
           title: Text('MyShop'),
@@ -86,12 +95,12 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           children: [
             _isDataLoading
                 ? LinearProgressIndicator(
-                    minHeight: 4,
-                    backgroundColor: Colors.white,
-                  )
+              minHeight: 4,
+              backgroundColor: Colors.white,
+            )
                 : SizedBox(
-                    height: 4,
-                  ),
+              height: 4,
+            ),
             Expanded(child: Container(child: ProductsGrid(_showOnlyFavorites))),
           ],
         ));

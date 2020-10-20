@@ -8,8 +8,3 @@ Future<void> configureInjection(String env) async {
 }
 
 final locator = GetIt.instance;
-
-abstract class Env{
-  static const dev = 'dev';
-  static const prod = 'prod';
-}

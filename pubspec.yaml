@@ -20,22 +20,32 @@ dependencies:
   chopper: ^2.4.1
   get_it: ^5.0.1
   injectable: ^1.0.5
+  built_value: ^7.1.0
+  retrofit: ^1.3.4+1
+  dio: 3.0.10
+  freezed: ^0.12.2
+  freezed_annotation: ^0.12.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  retrofit_generator: ^1.4.0
   build_runner: ^1.10.3
   chopper_generator: ^2.3.4
   injectable_generator: ^1.0.6
   json_serializable: ^3.5.0
   shared_preferences: ^0.5.12+2
+  built_value_generator: ^7.1.0
+
+dependency_overrides:
+  analyzer: 0.40.4
 flutter:
   uses-material-design: true
   fonts:
-  - family: Lato
-    fonts:
-    - asset: lib/fonts/Lato-Regular.ttf
-    - asset: lib/fonts/Lato-Bold.ttf
-      weight: 700
-  - family: Anton
-    fonts:
+    - family: Lato
+      fonts:
+        - asset: lib/fonts/Lato-Regular.ttf
+        - asset: lib/fonts/Lato-Bold.ttf
+          weight: 700
+    - family: Anton
+      fonts:
     - asset: lib/fonts/Anton-Regular.ttf

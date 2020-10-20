@@ -10,7 +10,6 @@ import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
-
   List<Product> _items = [];
 
   var authToken;
@@ -37,34 +36,26 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     try {
-      var baseModel = await productsRepository.fetchProducts();
-      print("getProducts list : $baseModel");
+      var apiResult = await productsRepository.fetchProducts();
+      print("getProducts list : $apiResult");
 
-      if (baseModel.data != null) {
-        final extractedProducts = baseModel.data as Map<String, dynamic>;
-        final List<Product> loadedProducts = [];
-
-        if (extractedProducts != null && extractedProducts.isNotEmpty) {
-          extractedProducts.forEach((prodId, prodData) {
-            loadedProducts.add(Product(
-                id: prodId,
-                title: prodData['title'],
-                description: prodData['description'],
-                price: prodData['price'],
-                imageUrl: prodData['imageUrl'],
-                isFavorite: prodData['isFavorite']));
-          });
-        }
-
-        print("got products");
-        print(loadedProducts);
-        _items = loadedProducts;
-        notifyListeners();
-      } else {
-        throw Exception(baseModel.error);
+      if (apiResult != null) {
+        apiResult.when(success: (Map<String, Product> data) {
+          List<Product> loadedProducts;
+          if (data != null && data.isNotEmpty) {
+            loadedProducts = data.values.toList();
+          }
+          print("got products $loadedProducts");
+          _items = loadedProducts;
+          notifyListeners();
+        }, failure: (error) {
+          print(error);
+          throw error;
+        });
       }
     } on Exception catch (error) {
-      throw Exception(error);
+      print(error);
+      throw error;
     }
   }
 

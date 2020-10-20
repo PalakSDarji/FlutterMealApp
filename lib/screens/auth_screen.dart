@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:flutter_meal_app/providers/auth_provider.dart';
-import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:provider/provider.dart';
 
 enum AuthMode { Signup, Login }
@@ -133,16 +133,23 @@ class _AuthCardState extends State<AuthCard> {
     try {
       if (_authMode == AuthMode.Login) {
         // Log user in
-        await Provider.of<AuthProvider>(context, listen: false)
-            .login(_authData['email'], _authData['password']);
+        final apiResult =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .login(_authData['email'], _authData['password']);
+
+        apiResult.when(
+            success: (user) {},
+            failure: (error) {
+              throw Exception(error);
+            });
       } else {
         // Sign user up
         await Provider.of<AuthProvider>(context, listen: false)
             .signup(_authData['email'], _authData['password']);
       }
-    } on HttpException catch (error) {
-      var errorMessage = 'Authentication failed';
-      if (error.toString().contains('EMAIL_EXISTS')) {
+    } on NetworkExceptions catch (error) {
+      var errorMessage = NetworkExceptions.getErrorMessage(error);
+      /*if (error.toString().contains('EMAIL_EXISTS')) {
         errorMessage = 'This email address is already in use.';
       } else if (error.toString().contains('INVALID_EMAIL')) {
         errorMessage = 'This email address is not valid.';
@@ -152,7 +159,7 @@ class _AuthCardState extends State<AuthCard> {
         errorMessage = 'This email address is not found.';
       } else if (error.toString().contains('INVALID_PASSWORD')) {
         errorMessage = 'Invalid password.';
-      }
+      }*/
       _showErrorDialog(errorMessage);
     } catch (error) {
       print('error is ' + error.toString());
