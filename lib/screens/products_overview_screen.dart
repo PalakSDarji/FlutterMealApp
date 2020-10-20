@@ -95,12 +95,12 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           children: [
             _isDataLoading
                 ? LinearProgressIndicator(
-              minHeight: 4,
-              backgroundColor: Colors.white,
-            )
+                    minHeight: 4,
+                    backgroundColor: Colors.white,
+                  )
                 : SizedBox(
-              height: 4,
-            ),
+                    height: 4,
+                  ),
             Expanded(child: Container(child: ProductsGrid(_showOnlyFavorites))),
           ],
         ));

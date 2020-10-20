@@ -3,7 +3,6 @@ import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'api_result.freezed.dart';
-
 part 'api_result.g.dart';
 
 @freezed

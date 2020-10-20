@@ -133,21 +133,21 @@ class _AuthCardState extends State<AuthCard> {
     try {
       if (_authMode == AuthMode.Login) {
         // Log user in
-        final apiResult =
-            await Provider.of<AuthProvider>(context, listen: false)
-                .login(_authData['email'], _authData['password']);
+        final apiResult = await Provider.of<AuthProvider>(context, listen: false)
+            .login(_authData['email'], _authData['password']);
 
-        apiResult.when(
-            success: (user) {},
-            failure: (error) {
-              throw Exception(error);
-            });
+        apiResult.when(success: (user) {
+
+        }, failure: (error) {
+          throw Exception(error);
+        });
       } else {
         // Sign user up
         await Provider.of<AuthProvider>(context, listen: false)
             .signup(_authData['email'], _authData['password']);
       }
     } on NetworkExceptions catch (error) {
+
       var errorMessage = NetworkExceptions.getErrorMessage(error);
       /*if (error.toString().contains('EMAIL_EXISTS')) {
         errorMessage = 'This email address is already in use.';

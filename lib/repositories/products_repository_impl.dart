@@ -23,10 +23,11 @@ class ProductsRepositoryImpl extends ProductsRepository {
   Future<ApiResult<Map<String, Product>>> fetchProducts() async {
     try {
       Map<String, Product> response =
-          await restService.getProducts(locator<AuthProvider>().token);
+      await restService.getProducts(locator<AuthProvider>().token);
       print("got response finally : $response");
       return ApiResult.success(data: response);
-    } catch (e) {
+    }
+    catch (e) {
       return ApiResult.failure(error: NetworkExceptions.getDioException(e));
     }
   }

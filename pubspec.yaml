@@ -41,11 +41,11 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   fonts:
-    - family: Lato
-      fonts:
-        - asset: lib/fonts/Lato-Regular.ttf
-        - asset: lib/fonts/Lato-Bold.ttf
-          weight: 700
-    - family: Anton
-      fonts:
+  - family: Lato
+    fonts:
+    - asset: lib/fonts/Lato-Regular.ttf
+    - asset: lib/fonts/Lato-Bold.ttf
+      weight: 700
+  - family: Anton
+    fonts:
     - asset: lib/fonts/Anton-Regular.ttf
