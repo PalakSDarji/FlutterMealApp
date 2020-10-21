@@ -4,19 +4,21 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_meal_app/utils/constants.dart';
 import 'package:http/http.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
 part 'product.g.dart';
 
 @JsonSerializable()
 class Product with ChangeNotifier {
-  final String id;
+  String id;
   final String title;
   final String description;
   final double price;
   final String imageUrl;
   bool isFavorite;
+  @JsonKey(ignore: false)
+  NameId nameId;
 
   Product(
       {@required this.id,
@@ -55,4 +57,16 @@ class Product with ChangeNotifier {
       _$ProductFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductToJson(this);
+}
+
+@JsonSerializable()
+class NameId {
+  String name;
+
+  NameId(this.name);
+
+  factory NameId.fromJson(Map<String, dynamic> json) =>
+      _$NameIdFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NameIdToJson(this);
 }

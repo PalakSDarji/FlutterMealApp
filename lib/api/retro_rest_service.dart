@@ -28,13 +28,13 @@ abstract class RetroRestService {
   Future<Map<String, Product>> getProducts(@Path("authToken") String authToken);
 
   @POST("/products.json?auth={authToken}")
-  Future<void> addProduct(@Path("authToken") String authToken);
+  Future<NameId> addProduct(@Path("authToken") String authToken, @Body() String product);
 
   @PATCH("/products/{id}.json?auth={authToken}")
-  Future<void> editProduct(
-      @Path("id") String id, @Path("authToken") String authToken);
+  Future<Product> editProduct(
+      @Path("id") String id, @Path("authToken") String authToken, @Body() String product);
 
-  @PATCH("/products/{id}.json?auth={authToken}")
+  @DELETE("/products/{id}.json?auth={authToken}")
   Future<void> deleteProduct(
       @Path("id") String id, @Path("authToken") String authToken);
 }

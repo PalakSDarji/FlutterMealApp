@@ -1,18 +1,13 @@
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/api/result/api_result.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/repositories/products_repository.dart';
 import 'package:flutter_meal_app/screens/add_edit_product_screen.dart';
-import 'package:flutter_meal_app/utils/constants.dart';
-import 'package:flutter_meal_app/utils/http_exception.dart';
-import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [];
-
-  var authToken;
 
   ProductsRepository productsRepository;
 
@@ -59,74 +54,76 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<http.Response> addProduct(ProductFormModel product) async {
+  Future<ApiResult<NameId>> addProduct(ProductFormModel product) async {
     try {
-      var url = Constants.PRODUCTS_URL.replaceFirst('{authToken}', authToken);
-      print("fetchAndSetProducts url : $url");
-      http.Response response = await http.post(url,
-          body: json.encode({
-            'title': product.title,
-            'description': product.description,
-            'imageUrl': product.imageUrl,
-            'price': product.price,
-            'isFavorite': product.isFav
-          }));
+      var apiResult = await productsRepository.addProduct(Product.fromJson({
+        'title': product.title,
+        'description': product.description,
+        'imageUrl': product.imageUrl,
+        'price': product.price,
+        'isFavorite': product.isFav
+      }));
 
-      Map respMap = json.decode(response.body);
-      product.id = respMap['name'];
-      _items.add(product.toProduct());
-      notifyListeners();
-      return response;
+      print('got response from addProduct : $apiResult');
+
+      apiResult.when(success: (NameId name) {
+        product.id = name.name;
+        _items.add(product.toProduct());
+        notifyListeners();
+      }, failure: (error) {
+        throw error;
+      });
+      return apiResult;
     } on Exception catch (error) {
       print("error is :: " + error.toString());
-      throw HttpException('Something went wrong!!');
+      throw error;
     }
   }
 
-  Future<http.Response> editProduct(Product product) async {
+  Future<ApiResult> editProduct(Product product) async {
     int index = indexOfProduct(product);
 
     if (index >= 0) {
       try {
-        final url = Constants.PRODUCTS_EDIT_URL
-            .replaceFirst('{id}', product.id)
-            .replaceFirst('{authToken}', authToken);
-        print("url : $url");
-        http.Response response =
-            await http.patch(url, body: json.encode(product.toJson()));
-        print("respo : " + response.statusCode.toString());
-        if (response.statusCode >= 400) {
-          throw HttpException('Wrong EndPoint');
-        }
-        _items[index] = product;
-        notifyListeners();
-        return response;
+        var apiResult = await productsRepository.updateProduct(product);
+
+        apiResult.when(success: (data) {
+          _items[index] = product;
+          notifyListeners();
+        }, failure: (error) {
+          throw error;
+        });
+        return apiResult;
       } on Exception catch (error) {
         //This is another way of catching and throwing the exception to outer codeblock.
         // in the case if we want to do something in catch block.
         print("error in updating product : " + error.toString());
-        throw HttpException('Something went wrong updating the product!');
+        //throw HttpException('Something went wrong updating the product!');
+        throw error;
       }
     }
   }
 
-  Future<http.Response> deleteProduct(Product product) async {
-    final url = Constants.PRODUCTS_EDIT_URL
-        .replaceFirst('{id}', product.id)
-        .replaceFirst('{authToken}', authToken);
+  Future<ApiResult> deleteProduct(Product product) async {
     final existingIndex = indexOfProduct(product);
     var existingProduct = _items[existingIndex];
 
-    _items.removeAt(existingIndex);
-    notifyListeners();
-
-    http.Response response = await http.delete(url);
-    if (response.statusCode >= 400) {
+    var apiResult = await productsRepository.deleteProduct(product.id);
+    try {
+      apiResult.when(success: (data) {
+        _items.removeAt(existingIndex);
+        notifyListeners();
+        existingProduct = null;
+        return apiResult;
+      }, failure: (error) {
+        throw error;
+      });
+    } catch (e) {
+      //revert back.
       _items.insert(existingIndex, existingProduct);
       notifyListeners();
-      throw HttpException('Could not delete product!');
+      print(e);
+      throw e;
     }
-    existingProduct = null;
-    return response;
   }
 }

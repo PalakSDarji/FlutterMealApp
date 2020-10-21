@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_meal_app/api/result/network_exceptions.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:flutter_meal_app/providers/cart_provider.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
 import 'package:flutter_meal_app/screens/cart_screen.dart';
@@ -33,9 +36,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           .fetchAndSetProducts()
           .catchError((error) {
         print(error);
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text(
-                '${NetworkExceptions.getErrorMessage(error).toString()}')));
+        final errorMsg = NetworkExceptions.getDioException(error);
+        if (errorMsg is UnexpectedError) {
+          //dont show anything.
+        } else {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text('${NetworkExceptions.getErrorMessage(errorMsg)}')));
+        }
         //Show some kind of error reporting to User in UI way.
       }).whenComplete(() {
         setState(() {

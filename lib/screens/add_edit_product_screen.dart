@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_meal_app/api/result/api_result.dart';
+import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:flutter_meal_app/providers/product.dart';
 import 'package:flutter_meal_app/providers/products_provider.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class AddEditProductScreen extends StatefulWidget {
@@ -227,7 +228,7 @@ class SubmitButtonWithProgressBar extends StatefulWidget {
 
 class _SubmitButtonWithProgressBarState
     extends State<SubmitButtonWithProgressBar> {
-  Future<Response> futureOfSubmit;
+  Future<ApiResult> futureOfSubmit;
   bool isLoadingVisible = false;
 
   @override
@@ -260,6 +261,7 @@ class _SubmitButtonWithProgressBarState
                     }
                     isLoadingVisible = true;
                   });
+
                   futureOfSubmit.then((value) {
                     Navigator.of(context).pop();
                   }).catchError((error) {
@@ -267,7 +269,7 @@ class _SubmitButtonWithProgressBarState
                         context: context,
                         builder: (context) => AlertDialog(
                               title: Text('An error occurred!'),
-                              content: Text(error.toString()),
+                              content: Text(NetworkExceptions.getErrorMessage(error).toString()),
                               actions: [
                                 FlatButton(
                                     onPressed: () {
@@ -284,7 +286,7 @@ class _SubmitButtonWithProgressBarState
                 },
           child: FutureBuilder(
             future: futureOfSubmit,
-            builder: (context, AsyncSnapshot<Response> snapshot) {
+            builder: (context, AsyncSnapshot<ApiResult> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Align(
                   alignment: Alignment.center,

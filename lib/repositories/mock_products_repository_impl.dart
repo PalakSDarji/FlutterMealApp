@@ -21,7 +21,7 @@ class MockProductsRepositoryImpl extends ProductsRepository {
   }
 
   @override
-  void deleteProduct() {
+  Future<ApiResult> deleteProduct(String id) {
     // TODO: implement deleteProduct
   }
 
@@ -32,7 +32,12 @@ class MockProductsRepositoryImpl extends ProductsRepository {
   }
 
   @override
-  void updateProduct() {
+  Future<ApiResult<Product>> updateProduct(Product product) {
     // TODO: implement updateProduct
+  }
+
+  @override
+  Future<ApiResult<NameId>> addProduct(Product product) {
+    // TODO: implement addProduct
   }
 }

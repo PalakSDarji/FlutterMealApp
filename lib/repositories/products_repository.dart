@@ -3,8 +3,7 @@ import 'package:flutter_meal_app/providers/product.dart';
 
 abstract class ProductsRepository {
   Future<ApiResult<Map<String, Product>>> fetchProducts();
-
-  void updateProduct();
-
-  void deleteProduct();
+  Future<ApiResult<NameId>> addProduct(Product product);
+  Future<ApiResult<Product>> updateProduct(Product product);
+  Future<ApiResult> deleteProduct(String id);
 }
