@@ -48,3 +48,5 @@ app.*.map.json
 /lib/api/rest_service.chopper.dart
 /lib/di/injection.config.dart
 /.gradle/
+/local.properties
+/.metadata

@@ -143,12 +143,18 @@ class _AuthCardState extends State<AuthCard> {
         });
       } else {
         // Sign user up
-        await Provider.of<AuthProvider>(context, listen: false)
+        final apiResult = await Provider.of<AuthProvider>(context, listen: false)
             .signup(_authData['email'], _authData['password']);
+
+        apiResult.when(success : null, failure: (error) {
+          throw Exception(error);
+        });
       }
     } on NetworkExceptions catch (error) {
 
       var errorMessage = NetworkExceptions.getErrorMessage(error);
+      /*TODO Go through different scenario and see what messages are returned from firebase. then think about
+            applying our messages if its too much technical.*/
       /*if (error.toString().contains('EMAIL_EXISTS')) {
         errorMessage = 'This email address is already in use.';
       } else if (error.toString().contains('INVALID_EMAIL')) {

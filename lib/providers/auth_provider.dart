@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:chopper/chopper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_meal_app/api/auth_rest_service.dart';
 import 'package:flutter_meal_app/api/result/api_result.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_meal_app/api/result/network_exceptions.dart';
 import 'package:flutter_meal_app/di/injection.dart';
 import 'package:flutter_meal_app/models/user.dart';
 import 'package:flutter_meal_app/utils/constants.dart';
-import 'package:flutter_meal_app/utils/http_exception.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,37 +35,31 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  Future<void> signup(String email, String password) async {
+  Future<ApiResult<User>> signup(String email, String password) async {
     try {
-      final response = await _authRestService.signup(AUTH_KEY,
+      final responseUser = await _authRestService.signup(AUTH_KEY,
           {'email': email, 'password': password, 'returnSecureToken': true});
 
-      print("body is this.." + response.toString());
-      /*final responseData = response.body;
-      print("body is this..2 ");
-      print('Signup response : $responseData');
-      if (responseData['error'] != null) {
-        throw HttpException(responseData['error']['message']);
-      }
+      print("body is this.." + responseUser.toString());
 
-      _user = User.fromJson(responseData)
+      _user = responseUser
         ..email = email
         ..password = password;
-
       _user.expiryDate =
           DateTime.now().add(Duration(seconds: int.parse(_user.expiresIn)));
 
       print("auth user : $_user");
       saveUserInPref();
-      notifyListeners();*/
+      return ApiResult.success(data: _user);
     } catch (error) {
-      if (error is Response<dynamic>) {
+      /*if (error is Response<dynamic>) {
         if (error.statusCode >= 400) {
           throw HttpException(error.body.toString());
         }
       }
       print("error caught by me: $error");
-      throw error;
+      throw error;*/
+      return ApiResult.failure(error: NetworkExceptions.getDioException(error));
     }
   }
 
@@ -77,10 +69,6 @@ class AuthProvider with ChangeNotifier {
           {'email': email, 'password': password, 'returnSecureToken': true});
 
       print("login response : $responseUser");
-
-      /*if (responseData['error'] != null) {
-        throw HttpException(responseData['error']['message']);
-      }*/
 
       _user = responseUser
         ..email = email
