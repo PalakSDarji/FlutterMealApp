@@ -18,11 +18,10 @@ class ProductsRepositoryImpl extends ProductsRepository {
 
   @override
   Future<ApiResult> deleteProduct(String id) async {
-    try{
+    try {
       await restService.deleteProduct(id, locator<AuthProvider>().token);
       return ApiResult.success(data: "done");
-    }
-    catch (e){
+    } catch (e) {
       print(e);
       return ApiResult.failure(error: NetworkExceptions.getDioException(e));
     }
@@ -32,23 +31,26 @@ class ProductsRepositoryImpl extends ProductsRepository {
   Future<ApiResult<Map<String, Product>>> fetchProducts() async {
     try {
       Map<String, Product> response =
-      await restService.getProducts(locator<AuthProvider>().token);
+          await restService.getProducts(locator<AuthProvider>().token);
+
+      response.forEach((key, value) {
+        value.id = key;
+      });
       print("got response finally : $response");
       return ApiResult.success(data: response);
-    }
-    catch (e) {
+    } catch (e) {
       return ApiResult.failure(error: NetworkExceptions.getDioException(e));
     }
   }
 
   @override
   Future<ApiResult<Product>> updateProduct(Product product) async {
-    try{
-      Product savedProduct = await restService.editProduct(product.id, locator<AuthProvider>().token, json.encode(product));
+    try {
+      Product savedProduct = await restService.editProduct(
+          product.id, locator<AuthProvider>().token, json.encode(product));
       print('got response from editProduct : $savedProduct');
       return ApiResult.success(data: savedProduct);
-    }
-    catch(e){
+    } catch (e) {
       print(e);
       return ApiResult.failure(error: NetworkExceptions.getDioException(e));
     }
@@ -56,12 +58,12 @@ class ProductsRepositoryImpl extends ProductsRepository {
 
   @override
   Future<ApiResult<NameId>> addProduct(Product product) async {
-    try{
-      NameId name = await restService.addProduct(locator<AuthProvider>().token, json.encode(product.toJson()));
+    try {
+      NameId name = await restService.addProduct(
+          locator<AuthProvider>().token, json.encode(product.toJson()));
       print('got response from addProduct : $name');
       return ApiResult.success(data: name);
-    }
-    catch(e){
+    } catch (e) {
       print(e);
       return ApiResult.failure(error: NetworkExceptions.getDioException(e));
     }

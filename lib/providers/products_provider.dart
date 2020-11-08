@@ -126,4 +126,33 @@ class ProductsProvider with ChangeNotifier {
       throw e;
     }
   }
+
+  Future<ApiResult<Product>> toggleFavorite(String id) async{
+
+    var existingProduct = findProductById(id);
+    var index = indexOfProduct(existingProduct);
+    existingProduct.isFavorite = !existingProduct.isFavorite;
+    _items[index] = existingProduct;
+    notifyListeners();
+
+    var apiResult = await productsRepository.updateProduct(existingProduct);
+
+    try{
+      apiResult.when(success: (product){
+
+      }, failure: (error){
+        //revert back.
+        existingProduct.isFavorite = !existingProduct.isFavorite;
+        _items[index] = existingProduct;
+        notifyListeners();
+        throw error;
+      });
+
+      return apiResult;
+    }
+    catch (e){
+      print(e);
+      throw e;
+    }
+  }
 }
